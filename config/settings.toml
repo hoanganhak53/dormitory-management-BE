@@ -1,0 +1,5 @@
+[default]
+ALLOWED_ORIGINS = []
+MONGO_DSN = "mongodb+srv://hoanganhak53:mk0912975138@cluster0.7ojj3pi.mongodb.net/"
+JWT_SECRET_KEY = ""
+JWT_ALGORITHM = "HS256"
