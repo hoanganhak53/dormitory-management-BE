@@ -5,6 +5,8 @@ from beanie import init_beanie, Document
 from motor import motor_asyncio
 
 from app.settings.app_settings import AppSettings
+from app.models.thesis_data import ThesisData
+from app.models.cluster_history import ClusterHistory
 
 
 async def init_collection(col: Type[Document], file_path: Union[str, Path]):
@@ -40,10 +42,12 @@ async def initialize():
     await init_beanie(
         client.get_database(),
         document_models=[
+            ThesisData,
+            ClusterHistory,
         ],
     )
 
     # CREATE DATA
-    await init_collections()
+    # await init_collections()
 
     print("Database is successfully initialized.")

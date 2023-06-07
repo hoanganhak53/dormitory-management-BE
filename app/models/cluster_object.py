@@ -6,7 +6,7 @@ from pymongo import ASCENDING, IndexModel
 from app.models.base import RootModel
 
 
-class ClusterObjectInput(BaseModel):
+class ClusterObjectInput(BaseModel): 
     field_one: Optional[str]
     field_one_feature: Optional[list]
     field_two: Optional[str]

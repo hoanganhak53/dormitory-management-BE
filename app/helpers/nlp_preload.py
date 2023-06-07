@@ -4,8 +4,6 @@ import gensim
 import torch
 import underthesea
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from transformers import AutoModel, AutoTokenizer
 
 class NLP():
@@ -19,8 +17,8 @@ class NLP():
         self.tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base-v2")
 
         # Stop word
-        fname = 'src/helpers/vn_stopword.txt'
-        self.stop_word_data = []
+        fname = 'app/helpers/vn_stopword.txt'
+        self.stop_word_data = np.genfromtxt(fname, dtype='str', delimiter='\n', encoding="utf8").tolist()
 
     def extract_feature(self, lines):
         if not self.phobert or not self.tokenizer:
