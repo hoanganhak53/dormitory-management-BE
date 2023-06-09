@@ -7,6 +7,7 @@ from motor import motor_asyncio
 from app.settings.app_settings import AppSettings
 from app.models.thesis_data import ThesisData
 from app.models.cluster_history import ClusterHistory
+from app.models.user import UserData
 
 
 async def init_collection(col: Type[Document], file_path: Union[str, Path]):
@@ -44,6 +45,7 @@ async def initialize():
         document_models=[
             ThesisData,
             ClusterHistory,
+            UserData
         ],
     )
 

@@ -1,5 +1,5 @@
 [default]
-ALLOWED_ORIGINS = []
+ALLOWED_ORIGINS = ["http://localhost:3000"]
 MONGO_DSN = "mongodb+srv://hoanganhak53:mk0912975138@cluster0.7ojj3pi.mongodb.net/ktx_bk"
-JWT_SECRET_KEY = ""
+JWT_SECRET_KEY = "78DBDE372E7932A18B891BB69D118"
 JWT_ALGORITHM = "HS256"

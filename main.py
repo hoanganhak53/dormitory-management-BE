@@ -30,4 +30,4 @@ async def app_init():
 
 @app.get("/ping", summary="Health check usage only")
 def ping():
-    return "PONG!"
+    return "PONGdd!"
