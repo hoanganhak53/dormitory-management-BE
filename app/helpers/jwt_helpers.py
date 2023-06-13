@@ -1,27 +1,25 @@
 import os
 import jwt
-from fastapi_jwt_auth import AuthJWT
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from beanie import PydanticObjectId
 from app.models.user import UserData
-
+from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer
 class PermissionDeniedException(Exception):
     pass
 
+os.environ["JWT_SECRET_KEY"] = "78DBDE372E7932A18B891BB69D118"
+os.environ["JWT_ALGORITHM"] = "HS256"
 
 default_secret_key = os.getenv('JWT_SECRET_KEY')
 default_algorithm = os.getenv('JWT_ALGORITHM')
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def require_user(Authorize: AuthJWT = Depends()):
+async def require_user(token: str= Depends(oauth2_scheme)):
     try:
-        Authorize.jwt_required()
-        user_id = decode_token(encoded_token=Authorize.get_jwt_subject())
-        user = await UserData.get(PydanticObjectId(str(user_id)))
-
-        if not user:
-            raise UserNotFound('User no longer exist')
-
+        data = decode_token(token)
+        return data.get("user_id")
     except Exception as e:
         error = e.__class__.__name__
         print(error)
@@ -55,7 +53,7 @@ def decode_token(
             algorithms=[algorithm], leeway=leeway
         )
         return data
-    except jwt.ExpiredSignatureError:
+    except jwt:
         raise PermissionDeniedException(
             'Signature expired. Please log in again.'
         )

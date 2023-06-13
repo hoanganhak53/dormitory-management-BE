@@ -9,16 +9,17 @@ class StudentRoomStatus(int, RootEnum):
     DA_DANG_KY = 1
     DA_NOP = 2
     DA_SAP_XEP = 3
+    DA_HUY = 4
+    #neu chuyen thanh da huy thi phai xoa room id cua user neu ko se la tiep tuc gia han dang ky
 
 
 class StudentRoomDataInput(BaseModel):
     user_id: str
     registration_id: str
-    room_id: str
-    apartment_id: str
+    room_id: Optional[str]
     room_type_id: str
+    apartment_id: str
     status: StudentRoomStatus = StudentRoomStatus.DA_DANG_KY
-    created_date: datetime
     
 
 class StudentRoomData(RootModel, StudentRoomDataInput):
@@ -28,7 +29,7 @@ class StudentRoomData(RootModel, StudentRoomDataInput):
             IndexModel(
                 [
                     ("registration_id", ASCENDING),
-                    ("apartment_id", ASCENDING),
+                    ("room_id", ASCENDING),
                 ],
             )
         ]

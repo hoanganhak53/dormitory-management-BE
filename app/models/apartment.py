@@ -8,8 +8,8 @@ from app.models.base import RootModel, RootEnum
 
 class ApartmentDataInput(BaseModel):
     apartment_name: str
-    total_student: str
-    total_room: str
+    total_student: int = 0
+    total_room: int = 0
     manager_id: str
     
 

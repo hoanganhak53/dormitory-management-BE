@@ -28,7 +28,7 @@ class UserDataInput(BaseModel):
     avatar: Optional[str]
     batch: Optional[str]
     phonenumber: Optional[str]
-    birth: Optional[datetime]
+    birth: Optional[str]
     answers: Optional[dict]
     
 
@@ -38,8 +38,7 @@ class UserData(RootModel, UserDataInput):
         indexes = [
             IndexModel(
                 [
-                    ("email", ASCENDING),
+                    ("room_id", ASCENDING)
                 ],
-                unique=True,
             )
         ]

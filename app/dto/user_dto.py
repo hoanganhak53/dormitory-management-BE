@@ -23,12 +23,11 @@ class ChangePasswordRequest(BaseModel):
     old_password: str
 
 class ChangeProfileRequest(BaseModel):
-    email: str
     full_name: str
     mssv: str
     batch: str
     phonenumber: str
-    birth: datetime
+    birth: str
     major: str
     gender: GenderType
 
@@ -43,6 +42,7 @@ class ShortUserData(BeanieDocumentWithId):
     full_name: str
     mssv: str
     user_type: UserType = UserType.STUDENT
+    avatar: Optional[str]
 
 
 class FullUserData(ShortUserData):
@@ -51,10 +51,9 @@ class FullUserData(ShortUserData):
     room_id: Optional[str]
     major: Optional[str]
     gender: Optional[GenderType]
-    avatar: Optional[str]
     batch: Optional[str]
     phonenumber: Optional[str]
-    birth: Optional[datetime]
+    birth: Optional[str]
     answers: Optional[dict]
 
 

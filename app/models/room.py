@@ -10,7 +10,6 @@ class RoomDataInput(BaseModel):
     room_name: str
     room_type_id: str
     apartment_id: str
-    
 
 class RoomData(RootModel, RoomDataInput):
     class Collection:

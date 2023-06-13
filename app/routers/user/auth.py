@@ -21,7 +21,7 @@ async def register(register_input: UserRegisterRequest):
 async def login(login_input: UserLoginRequest):
     user_data = await UserService().login(login_input)
     
-    token = await generate_token(str(user_data.id))
+    token = generate_token({"user_id": str(user_data.id)})
     return LoginDataResponse(
         message="Đăng nhập thành công",
         data=user_data,

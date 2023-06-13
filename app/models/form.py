@@ -15,7 +15,7 @@ class FormDataInput(BaseModel):
     question: str
     answers: List
     weight: str
-    type: FormType = FormType.RADIO
+    form_type: FormType = FormType.RADIO
     matrix: dict
     
 

@@ -2,7 +2,7 @@ from typing import Optional, List
 from pydantic import BaseModel
 from pymongo import ASCENDING, IndexModel
 from datetime import datetime
-from user import GenderType
+from .user import GenderType
 
 from app.models.base import RootModel, RootEnum
 

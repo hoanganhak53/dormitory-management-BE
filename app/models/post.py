@@ -15,7 +15,6 @@ class PostDataInput(BaseModel):
     image: str
     title: str
     content: str
-    created_date: datetime
     status: PostStatus = PostStatus.ACTIVE
     
 
