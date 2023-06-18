@@ -7,6 +7,7 @@ from app.dto.user_dto import (UserRegisterRequest , UserLoginRequest, FullUserDa
 from app.models.user import UserData
 from app.models.room import RoomData
 from app.models.apartment import ApartmentData
+from app.models.student_room import StudentRoomData
 from fastapi import HTTPException, status
 
 class UserService:
@@ -32,7 +33,17 @@ class UserService:
         if not user_data:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Email hoặc mật khẩu không chính xác')
-        return user_data
+        
+        user_data_dict = user_data.dict()
+        if user_data.user_type == 2:
+            apartment = await ApartmentData.find_one({'manager_id': str(user_data.id)})
+            if apartment is None:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Tài khoản chưa được quản lý tòa nhà nào')
+
+            user_data_dict['apartment_id'] = str(apartment.id)
+        
+        return user_data_dict
 
 
     async def changePassword(
@@ -138,3 +149,30 @@ class UserService:
                         users_dict.append(user_dict)
                 
         return users_dict
+    
+    async def overview(
+        self,
+    ):
+        student_all = UserData.find_many({"user_type": 1})
+        manager_all = UserData.find_many({"user_type": 2})
+        admin_all = UserData.find_many({"user_type": 3})
+        
+        student_num = await student_all.count()
+        manager_num = await manager_all.count()
+        admin_num = await admin_all.count()
+        
+        registration_all = StudentRoomData.find_all()
+        room_all =  RoomData.find_all()
+        
+        room_num = await room_all.count()
+        registration_num = await registration_all.count()
+        
+        return {
+        "message": "Overview ký túc xá",
+        "data": {
+                "student_num": student_num,
+                "manager_num": manager_num + admin_num,
+                "room_num": room_num,
+                "registration_num": registration_num
+            },
+    }

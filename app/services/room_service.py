@@ -19,7 +19,7 @@ class RoomService:
             room_dict = room.dict()
             room_type = await RoomTypeData.find_one({'_id': PydanticObjectId(room.room_type_id)})
             apartment = await ApartmentData.find_one({'_id': PydanticObjectId(room.apartment_id)})
-            students = ApartmentData.find_many({'room_id': room_dict['id']})
+            students = UserData.find_many({'room_id': str(room.id)})
 
             room_dict["room_type_name"] = room_type.room_type_name
             room_dict["room_price"] = room_type.room_price
@@ -82,3 +82,15 @@ class RoomService:
         }})
         
         return room.dict()
+    
+    async def detail(
+        self,
+        room_id: str
+    ):
+        students = UserData.find_many({'room_id': room_id})
+        students_dict = []
+        student_list = await students.to_list()
+        for student in student_list:
+            students_dict.append(student.dict())
+        
+        return students_dict

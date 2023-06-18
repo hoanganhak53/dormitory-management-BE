@@ -82,3 +82,15 @@ class RegistrationService:
             can_register.append(room_type_dict)
 
         return can_register, current_registration.dict()
+    
+    
+    async def delete(
+        self,
+        registration_id: str
+    ):
+        registration = await RegistrationData.find_one({'_id': PydanticObjectId(registration_id)})
+        if not registration:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Đợt đăng ký không tồn tại')
+
+        await registration.delete()

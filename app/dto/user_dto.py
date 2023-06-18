@@ -60,7 +60,3 @@ class FullUserData(ShortUserData):
 class UserDataResponse(BaseResponseData):
     data: FullUserData
 
-
-class LoginDataResponse(BaseResponseData):
-    data: ShortUserData
-    token: str

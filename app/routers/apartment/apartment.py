@@ -40,9 +40,20 @@ async def get_list_apartment_data(user_id: str = Depends(require_user)):
     
 @route.get('/{apartment_id}')
 async def get_apartment_by_id_data(apartment_id: str, user_id: str = Depends(require_user)):
-    apartment_res = await ApartmentService().detail(apartment_id)
+    apartment, rooms = await ApartmentService().detail(apartment_id)
     
     return {
         "message": "Lấy danh sách thành công",
-        "data": apartment_res
+        "data": apartment,
+        "rooms": rooms
+    }
+
+@route.get('/registration/{apartment_id}')
+async def get_registration_by_apartment(apartment_id: str, user_id: str = Depends(require_user)):
+    items, apartment = await ApartmentService().registration_by_apartment(apartment_id)
+    
+    return {
+        "message": "Lấy danh sách thành công",
+        "data": items,
+        "apartment": apartment
     }

@@ -37,3 +37,13 @@ async def get_list_room_data(user_id: str = Depends(require_user)):
         "data": items,
         "total": total
     }
+    
+@route.get('/detail/{room_id}')
+async def get_list_room_data(room_id: str, user_id: str = Depends(require_user)):
+    items = await RoomService().detail(room_id)
+    
+    return {
+        "message": "Lấy danh sách thành công",
+        "data": items
+    }
+    

@@ -4,6 +4,10 @@ from app.dto.user_dto import (ChangePasswordRequest, ChangeProfileRequest, Chang
 from app.services.user_service import UserService
 from app.helpers.jwt_helpers import generate_token, require_user, decode_token
 from app.models.user import UserData
+from app.models.room import RoomData
+from app.models.apartment import ApartmentData
+from app.models.student_room import StudentRoomData
+from app.models.registration import RegistrationData
 from beanie import PydanticObjectId
 from typing import Union, Annotated
 
@@ -15,10 +19,20 @@ async def get_me(target_id: str, user_id: str = Depends(require_user)):
         user = await UserData.get(PydanticObjectId(str(user_id)))
     else:
         user = await UserData.get(PydanticObjectId(str(target_id)))
-        
+    
+    user_dict = user.dict()
+    if user.room_id is not None:
+        room = await RoomData.find_one({'_id': PydanticObjectId(user.room_id)})
+        apartment = await ApartmentData.find_one({'_id': PydanticObjectId(room.apartment_id)})
+        student_room = await StudentRoomData.find_one({'room_id': str(room.id), 'user_id': str(user.id)})
+        registration = await RegistrationData.find_one({'_id': PydanticObjectId(student_room.registration_id)})
+        user_dict['room_name'] = room.room_name
+        user_dict['apartment_name'] = apartment.apartment_name
+        user_dict['registration'] = registration.dict()
+    
     return {
         "message": "get user",
-        "data": user
+        "data": user_dict
     }
 
 
@@ -38,4 +52,3 @@ async def change(profile_input: Union[ChangeProfileRequest, ChangeAvatarRequest,
         "message": "Cập nhật thông tin thành công",
         "data": user_data
     }
-    

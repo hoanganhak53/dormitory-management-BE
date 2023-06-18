@@ -8,6 +8,7 @@ from app.models.student_room import StudentRoomData
 from app.models.registration import RegistrationData
 from app.models.apartment import ApartmentData
 from app.models.room_type import RoomTypeData
+from app.dto.apartment_dto import GetStudentNoRoom, AddStudentToRoom, RemoveStudentToRoom
 from fastapi import HTTPException, status
 
 class StudentService:
@@ -64,3 +65,82 @@ class StudentService:
             registrations_dict.append(registration_dict)
             
         return registrations_dict
+
+    async def no_room(
+        self,
+        no_room_input: GetStudentNoRoom
+    ):
+        apartment = await ApartmentData.get(PydanticObjectId(no_room_input.apartment_id))
+        if not apartment:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Tòa nhà không tổn tại')
+            
+        room_type = await RoomTypeData.get(PydanticObjectId(no_room_input.room_type_id))
+        if not room_type:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Loại phòng không tổn tại')
+        
+        students_no_room = StudentRoomData.find_many({
+            "apartment_id": no_room_input.apartment_id,
+            "room_type_id": no_room_input.room_type_id,
+            "status": 2
+        })
+
+        students_no_room_dict = []
+        students_no_room_list = await students_no_room.to_list()
+        for student in students_no_room_list:
+            student_dict = student.dict()
+            user = await UserData.get(PydanticObjectId(student.user_id))
+            student_dict['student'] = user.dict()
+            students_no_room_dict.append(student_dict)
+            
+        return students_no_room_dict
+
+
+    async def add_to_room(
+            self,
+            add_student_input: AddStudentToRoom
+        ):
+            student_room = await StudentRoomData.get(PydanticObjectId(add_student_input.student_room_id))
+            if not student_room:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Đăng ký không tổn tại')
+                
+            await student_room.update({"$set": {
+                "room_id" : add_student_input.room_id,
+                "status" : 3
+            }})
+            
+            #do to mailer
+            
+            user = await UserData.get(PydanticObjectId(add_student_input.user_id))
+                        
+            await user.update({"$set": {
+                "room_id" : add_student_input.room_id
+            }})
+            return user.dict()
+    
+    
+    async def remove_to_room(
+            self,
+            remove_student_input: RemoveStudentToRoom
+        ):
+            student_room = await StudentRoomData.find_one({'room_id': remove_student_input.room_id, 'user_id': remove_student_input.user_id})
+            if not student_room:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Đăng ký không tổn tại')
+                
+            await student_room.update({"$set": {
+                "room_id" : None,
+                "status" : 2
+            }})
+            
+            #do to mailer
+            
+            user = await UserData.get(PydanticObjectId(remove_student_input.user_id))
+                        
+            await user.update({"$set": {
+                "room_id" : None
+            }})
+            return user.dict()
+            

@@ -47,3 +47,11 @@ async def get_current_registration_data(user_id: str = Depends(require_user)):
         "data": rooms,
         "registration": current
     }
+    
+    
+@route.delete('/{registration_id}')
+async def remove_registration(registration_id: str, user_id: str = Depends(require_user)):
+    await RegistrationService().delete(registration_id)
+    return {
+        "message": "Xóa Đợt đăng ký thành công",
+    }

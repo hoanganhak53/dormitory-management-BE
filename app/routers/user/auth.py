@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from app.dto.common import (BaseResponse, BaseResponseData)
-from app.dto.user_dto import (UserRegisterRequest, UserLoginRequest, LoginDataResponse)
+from app.dto.user_dto import (UserRegisterRequest, UserLoginRequest)
 from app.services.user_service import UserService
 from app.helpers.jwt_helpers import generate_token
 
@@ -21,9 +21,15 @@ async def register(register_input: UserRegisterRequest):
 async def login(login_input: UserLoginRequest):
     user_data = await UserService().login(login_input)
     
-    token = generate_token({"user_id": str(user_data.id)})
-    return LoginDataResponse(
-        message="Đăng nhập thành công",
-        data=user_data,
-        token=token
-    )
+    token = generate_token({"user_id": str(user_data['id'])})
+    return {
+        "message": "Đăng nhập thành công",
+        "data": user_data,
+        "token": token
+    }
+    
+@route.get("/overview")
+async def overview_ktx():
+    overview = await UserService().overview()
+    
+    return overview

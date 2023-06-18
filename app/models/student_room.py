@@ -29,7 +29,8 @@ class StudentRoomData(RootModel, StudentRoomDataInput):
             IndexModel(
                 [
                     ("registration_id", ASCENDING),
-                    ("room_id", ASCENDING),
+                    ("apartment_id", ASCENDING),
+                    ("room_type_id", ASCENDING),
                 ],
             )
         ]
