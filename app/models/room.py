@@ -17,8 +17,7 @@ class RoomData(RootModel, RoomDataInput):
         indexes = [
             IndexModel(
                 [
-                    ("room_name", ASCENDING),
+                    ("room_type_id", ASCENDING),
                 ],
-                unique=True,
             )
         ]

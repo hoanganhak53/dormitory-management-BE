@@ -3,6 +3,7 @@ from app.dto.common import (BaseResponse, BaseResponseData)
 from app.dto.user_dto import (UserRegisterRequest, UserLoginRequest)
 from app.services.user_service import UserService
 from app.helpers.jwt_helpers import generate_token
+from app.models.user import UserData
 
 route = APIRouter(tags=['Auth'], prefix="/auth")
 
@@ -33,3 +34,28 @@ async def overview_ktx():
     overview = await UserService().overview()
     
     return overview
+
+
+@route.get("/gen")
+async def gen_ktx():
+    for i in range(0, 30):
+        user_dict = {
+            "email": f"example{i}@gmail.com",
+            "full_name": f"Nguyen Van A {i}",
+            "mssv": f"2019011{i}",
+            "password": "12345678",
+            "user_type": 1,
+            "is_valid": True,
+            "is_more_info": True,
+            "major": "14",
+            "gender": 1,
+            "batch": "64",
+            "phonenumber": f"{i}12345{i}003",
+            "birth": "2001-01-01"
+        }
+        model = UserData(**user_dict)
+        await model.save()
+    
+    return {
+        "message": "Thanh cong"
+    }

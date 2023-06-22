@@ -36,7 +36,9 @@ class ChangeAvatarRequest(BaseModel):
     
 class ChangeAnswerRequest(BaseModel):
     answers: dict
-    
+
+class AdminChangeRequest(BaseModel):
+    full_name: str
 class ShortUserData(BeanieDocumentWithId):
     email: str
     full_name: str

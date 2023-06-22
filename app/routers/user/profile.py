@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Depends
 from app.dto.common import (BaseResponse, BaseResponseData)
-from app.dto.user_dto import (ChangePasswordRequest, ChangeProfileRequest, ChangeAnswerRequest, ChangeAvatarRequest)
+from app.dto.user_dto import (ChangePasswordRequest, ChangeProfileRequest, ChangeAnswerRequest, ChangeAvatarRequest, AdminChangeRequest)
 from app.services.user_service import UserService
 from app.helpers.jwt_helpers import generate_token, require_user, decode_token
 from app.models.user import UserData
@@ -45,7 +45,7 @@ async def change_password(passward_input: ChangePasswordRequest, user_id: str = 
 
 
 @route.put("/change")
-async def change(profile_input: Union[ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest], user_id: str = Depends(require_user)):
+async def change(profile_input: Union[ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest, AdminChangeRequest], user_id: str = Depends(require_user)):
     user_data = await UserService().change(profile_input, user_id)
  
     return {

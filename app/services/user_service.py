@@ -3,7 +3,7 @@ from datetime import datetime
 from beanie import PydanticObjectId
 from beanie.operators import RegEx, GTE, Eq
 from app.dto.user_dto import (UserRegisterRequest , UserLoginRequest, FullUserData, ShortUserData, 
-    ChangePasswordRequest, ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest)
+    ChangePasswordRequest, ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest, AdminChangeRequest)
 from app.models.user import UserData
 from app.models.room import RoomData
 from app.models.apartment import ApartmentData
@@ -64,7 +64,7 @@ class UserService:
 
     async def change(
         self,
-        profile_input: Union[ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest],
+        profile_input: Union[ChangeProfileRequest, ChangeAvatarRequest, ChangeAnswerRequest, AdminChangeRequest],
         user_id: str
     ):
         user = await UserData.get(PydanticObjectId(str(user_id)))
