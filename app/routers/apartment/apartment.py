@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Depends
 from app.dto.common import (BaseResponse, BaseResponseData)
-from app.dto.apartment_dto import (CreateApartmentRequest, UpdateApartmentRequest)
+from app.dto.apartment_dto import (CreateApartmentRequest, UpdateApartmentRequest, ClusterStudent)
 from app.services.apartment_service import ApartmentService
 from app.helpers.jwt_helpers import generate_token, require_user, decode_token
 from app.models.user import UserData
@@ -56,4 +56,23 @@ async def get_registration_by_apartment(apartment_id: str, user_id: str = Depend
         "message": "Lấy danh sách thành công",
         "data": items,
         "apartment": apartment
+    }
+    
+@route.post('/cluster')
+async def clustering_student_by_room_type(clusterStudent: ClusterStudent, user_id: str = Depends(require_user)):
+    data, statistic = await ApartmentService().clustering(clusterStudent)
+    
+    return {
+        "message": "Sắp xếp sách thành công",
+        "data": data,
+        "statistic": statistic
+    }
+    
+@route.post('/cluster/save')
+async def save_clustering_student(rooms: list, user_id: str = Depends(require_user)):
+    data = await ApartmentService().save_cluster(rooms)
+    
+    return {
+        "message": "Sắp xếp sách thành công",
+        "data": data
     }

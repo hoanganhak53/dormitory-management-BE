@@ -75,7 +75,6 @@ class RegistrationService:
              
         room_types = RoomTypeData.find_many({'gender': user.gender})
         room_type_list = await room_types.to_list()
-        
         can_register = []
         for room_type in room_type_list:
             room_type_dict = room_type.dict()

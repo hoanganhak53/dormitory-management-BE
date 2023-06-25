@@ -5,7 +5,6 @@ from beanie import init_beanie, Document
 from motor import motor_asyncio
 
 from app.settings.app_settings import AppSettings
-from app.models.thesis_data import ThesisData
 from app.models.cluster_history import ClusterHistory
 from app.models.user import UserData
 from app.models.apartment import ApartmentData
@@ -50,7 +49,6 @@ async def initialize():
     await init_beanie(
         client.get_database(),
         document_models=[
-            ThesisData,
             ClusterHistory,
             UserData,
             ApartmentData,

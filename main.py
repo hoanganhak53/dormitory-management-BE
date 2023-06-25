@@ -26,8 +26,3 @@ async def app_init():
 
     # Load nlp model
     await async_wrap(nlp_service.initialize)()
-
-
-@app.get("/ping", summary="Health check usage only")
-def ping():
-    return "PONGdd!"

@@ -26,3 +26,7 @@ class AddStudentToRoom(BaseModel):
 class RemoveStudentToRoom(BaseModel):
     user_id: str
     room_id: str
+    
+class ClusterStudent(BaseModel):
+    apartment_id: str
+    room_type_name: str

@@ -24,11 +24,14 @@ async def get_me(target_id: str, user_id: str = Depends(require_user)):
     if user.room_id is not None:
         room = await RoomData.find_one({'_id': PydanticObjectId(user.room_id)})
         apartment = await ApartmentData.find_one({'_id': PydanticObjectId(room.apartment_id)})
-        student_room = await StudentRoomData.find_one({'room_id': str(room.id), 'user_id': str(user.id)})
-        registration = await RegistrationData.find_one({'_id': PydanticObjectId(student_room.registration_id)})
-        user_dict['room_name'] = room.room_name
-        user_dict['apartment_name'] = apartment.apartment_name
-        user_dict['registration'] = registration.dict()
+        if room is not None:
+            user_dict['room_name'] = room.room_name
+            student_room = await StudentRoomData.find_one({'room_id': str(room.id), 'user_id': str(user.id)})
+            if student_room is not None:
+                user_dict['apartment_name'] = apartment.apartment_name
+                registration = await RegistrationData.find_one({'_id': PydanticObjectId(student_room.registration_id)})
+                if registration is not None:
+                    user_dict['registration'] = registration.dict()
     
     return {
         "message": "get user",
