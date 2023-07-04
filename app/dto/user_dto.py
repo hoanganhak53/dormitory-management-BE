@@ -46,6 +46,10 @@ class ShortUserData(BeanieDocumentWithId):
     user_type: UserType = UserType.STUDENT
     avatar: Optional[str]
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+    mssv: str
+
 
 class FullUserData(ShortUserData):
     is_valid: bool = False

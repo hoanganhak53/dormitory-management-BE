@@ -11,7 +11,7 @@ from app.models.room_type import RoomTypeData
 from app.models.registration import RegistrationData
 from app.models.form import FormData
 from app.models.cluster_object import ClusterObject, ClusterObjectInput
-from app.services.clustering_service import SSMC_FCM
+from app.services.clustering_service import FCM 
 from fastapi import HTTPException, status
 import math
 import time
@@ -188,7 +188,7 @@ class ApartmentService:
         for data in dataset:
             dataset_obj.append(ClusterObject(**data))
 
-        cluster = SSMC_FCM(dataset_obj, questions_weight, round(len(dataset) / room_type.capacity), 2, 0.6, 0.001, 50, False)
+        cluster = FCM (dataset_obj, questions_weight, round(len(dataset) / room_type.capacity), 2, 0.6, 0.001, 50, False)
         cluster_element = cluster.clustering()
         
         rs = []
@@ -210,14 +210,26 @@ class ApartmentService:
         for room in rooms:
             for student in room["students"]:
                 student["room_id"] = room["id"]
-                # update student room
-                # student_room = await StudentRoomData.find_one({'user_id': student["user_id"], 'status': 2})
-                # if not student_room:
-                #     raise HTTPException(
-                #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Sắp xếp lỗi')
-                # await student_room.update({"$set": {
-                #     "status" : 3
-                # }})
+                # Lưu các đăng ký của sinh viên đã sắp xếp
+                student_data = await UserData.find_one({'_id': PydanticObjectId(str(student["id"]))})
+                if not student_data:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Lưu thông tin không thành công')
+                    
+                await student_data.update({"$set": {
+                    "room_id": room["id"]
+                }})
+        
+                # Lưu các đăng ký của sinh viên đã sắp xếp
+                student_room = await StudentRoomData.find_one({'user_id': student["id"], 'status': 2})
+                if not student_room:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Lưu thông tin không thành công')
+                    
+                await student_room.update({"$set": {
+                    "status" : 3,
+                    "room_id": room["id"]
+                }})
         
         return rooms
 

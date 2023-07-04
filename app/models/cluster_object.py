@@ -37,8 +37,6 @@ class ClusterObject(ClusterObjectInput):
             
         return rs
     
-    def calculate_centroid_from_list(cls, data: list[ClusterObjectInput]):
-        return cls
     
     @classmethod
     def calculate_centroid_from_list_and_uik(cls, uik_pow: list, data: list[ClusterObjectInput]):

@@ -8,7 +8,7 @@ from typing import Optional, List
 
 from app.models.cluster_object import ClusterObject
 
-class SSMC_FCM:
+class FCM :
     def __init__(
         self,
         # Danh sách các sinh viên sau khi tiền xử lý

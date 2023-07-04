@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Query
 from app.dto.common import (BaseResponse, BaseResponseData)
-from app.dto.user_dto import (UserRegisterRequest, UserLoginRequest)
+from app.dto.user_dto import (UserRegisterRequest, UserLoginRequest, ForgotPasswordRequest)
 from app.services.user_service import UserService
 from app.helpers.jwt_helpers import generate_token
 from app.models.user import UserData
+import random
+import string
 
 route = APIRouter(tags=['Auth'], prefix="/auth")
 
@@ -34,6 +36,29 @@ async def overview_ktx():
     overview = await UserService().overview()
     
     return overview
+
+
+@route.post("/reset_password")
+async def reset_password(input_pass: ForgotPasswordRequest):
+    user = await UserData.find_one({"email": input_pass.email, "mssv": input_pass.mssv})
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Email hoặc mã số sinh viên không tồn tại')
+    
+    characters = string.ascii_letters + string.digits
+    password = ''.join(random.choice(characters) for _ in range(10))
+    
+    await user.update(
+        { "$set":
+            {
+                "password": password
+            }
+        }
+    )
+    return {
+        "message": "Mật khẩu mới đã được gửi về email của bạn",
+        "new_password": password
+    }
 
 
 @route.get("/gen")

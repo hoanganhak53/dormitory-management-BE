@@ -110,9 +110,7 @@ class StudentService:
                 "room_id" : add_student_input.room_id,
                 "status" : 3
             }})
-            
-            #do to mailer
-            
+                        
             user = await UserData.get(PydanticObjectId(add_student_input.user_id))
                         
             await user.update({"$set": {
@@ -134,9 +132,7 @@ class StudentService:
                 "room_id" : None,
                 "status" : 2
             }})
-            
-            #do to mailer
-            
+                        
             user = await UserData.get(PydanticObjectId(remove_student_input.user_id))
                         
             await user.update({"$set": {
