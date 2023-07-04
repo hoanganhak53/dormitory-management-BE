@@ -55,7 +55,7 @@ class FCM :
             self.pred_labels[id_cluster].append(idx)
         self.pred_labels = np.array(self.pred_labels, dtype=object)
         
-        return self.pred_labels
+        return self.pred_labels, self.centroid
 
     def __generate_centroid(self):
         # computing random centroid for unsupervised clusters (apply kmean++)

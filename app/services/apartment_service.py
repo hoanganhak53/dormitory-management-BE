@@ -189,15 +189,15 @@ class ApartmentService:
             dataset_obj.append(ClusterObject(**data))
 
         cluster = FCM (dataset_obj, questions_weight, round(len(dataset) / room_type.capacity), 2, 0.6, 0.001, 50, False)
-        cluster_element = cluster.clustering()
+        cluster_element, centroid = cluster.clustering()
         
         rs = []
         for i in range(len(cluster_element)):
             rs.append(cluster_element[i])
             print(cluster_element[i])
         
-        rs = await self.response_data_processing(rs, dataset, room_type.capacity, empty_rooms)
-        
+        rs = await self.response_data_processing(rs, dataset, room_type.capacity, empty_rooms, centroid)
+
         return rs, {
             "room_num": len(cluster_element),
             "student_num": len(dataset),
@@ -205,7 +205,6 @@ class ApartmentService:
             "room_type_name": clusterStudent.room_type_name
         }
         
-    #todo
     async def save_cluster(self, rooms: List):
         for room in rooms:
             for student in room["students"]:
@@ -277,7 +276,7 @@ class ApartmentService:
         
         return dataset, questions_weight
     
-    async def response_data_processing(self, centroids: List, dataset: List, capacity: int, empty_rooms: List):
+    async def response_data_processing(self, centroids: List, dataset: List, capacity: int, empty_rooms: List, centroid: List):
         final_array = []
         short_centroids = []
         for sub_array in centroids:
@@ -300,16 +299,32 @@ class ApartmentService:
 
         empty_rooms = empty_rooms[:len(final_array)]
         
+        form = await FormData.find_all().to_list()
+        
         rs = []
         for i in range(0, len(final_array)):
             obj = empty_rooms[i].dict()
             students = []
+            centroid_students = centroid[i].answers
             for index in final_array[i]:
                 student = await UserData.find_one({'_id': PydanticObjectId(dataset[index]['user_id'])})
                 student = student.dict()
                 del student['answers']
                 students.append(student)
+            
+            description = []
+            for j in range(0, len(form)):
+                item = dict()
+                a = []
+                for k in range(0, len(centroid_students[j])):
+                    if centroid_students[j][k] != 0:
+                        a.append(form[j].answers[k])
+                item['answers'] = a
+                item['question'] = form[j].question
+                description.append(item)
+            
             obj['students'] = students
+            obj['description'] = description
             rs.append(obj)
 
         return rs
