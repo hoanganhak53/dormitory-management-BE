@@ -1,7 +1,5 @@
 import sys
 import math
-import traceback
-import scipy.optimize
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional, List

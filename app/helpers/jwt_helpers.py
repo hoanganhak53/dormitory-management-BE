@@ -3,7 +3,6 @@ import jwt
 from fastapi import Depends, HTTPException, status, Header
 from beanie import PydanticObjectId
 from app.models.user import UserData
-from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
 class PermissionDeniedException(Exception):
     pass

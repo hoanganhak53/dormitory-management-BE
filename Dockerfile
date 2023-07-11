@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 WORKDIR /dir
 COPY ./requirements.txt /dir/requirements.txt
@@ -9,6 +9,6 @@ COPY ./config /dir/config
 COPY ./main.py /dir/main.py
 COPY ./Makefile /dir/Makefile
 
-EXPOSE 8001
+EXPOSE 80
 
 CMD ["make", "start"]

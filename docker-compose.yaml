@@ -12,10 +12,11 @@ services:
 
   clustering:
     build: .
+    image: hoanganhbackend.azurecr.io/clustering
     depends_on:
       - mongodb
     ports:
-      - "8001:8001"
+      - "8001:80"
 
 volumes:
   mongodb:

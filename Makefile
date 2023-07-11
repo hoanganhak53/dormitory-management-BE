@@ -5,7 +5,7 @@ dev-down:
 	docker-compose down
 
 start:
-	uvicorn main:app --host 0.0.0.0 --port 8001
+	uvicorn main:app --host 0.0.0.0 --port 80
 
 start-reload:
 	python main-hotload.py

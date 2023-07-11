@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 from app import database
 from app.routers import routers
-from app.helpers.nlp_preload import nlp_service
 from app.helpers.asynchronous import async_wrap
 from app.middlewares.cors import apply_cors
 from app.settings import AppSettings
@@ -23,6 +22,3 @@ async def app_init():
     # ADD ROUTES
     for router in routers:
         app.include_router(**router)
-
-    # Load nlp model
-    await async_wrap(nlp_service.initialize)()

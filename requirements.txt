@@ -1,11 +1,6 @@
-transformers==4.28.1
-sentencepiece==0.1.98
-underthesea==6.2.0
-gensim==4.3.1
 numpy==1.24.2
 pandas==2.0.0
 matplotlib==3.7.1
-torch==2.0.0
 bcrypt==4.0.1
 beanie==1.11.0
 dynaconf==3.1.8
