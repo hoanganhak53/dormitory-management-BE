@@ -28,3 +28,5 @@ Follow the steps below to install and run the Dormitory Management backend proje
     uvicorn main:app --reload
 
 The application will be running at http://localhost:8001.
+
+Follow this guide to creat nginx cert: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-container-group-ssl
