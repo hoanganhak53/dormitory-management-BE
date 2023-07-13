@@ -1,84 +1,88 @@
 import sys
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 from typing import Optional, List
+import random
 
-from app.models.cluster_object import ClusterObject
+from app.models.cluster_object import ClusterStudentService, ClusterObjectInput
 
 class FCM :
     def __init__(
         self,
         # Danh sách các sinh viên sau khi tiền xử lý
-        dataset: List[ClusterObject],
+        dataset: List[ClusterObjectInput],
         # Mảng trọng số
         fields_weight: Optional[List] = [],
         # Số cụm
         n_clusters: Optional[int] = 3,
         # Hệ số M nên mặc định là 2
         fuzzi_M: Optional[int] = 2,
-        alpha: Optional[float] = 0.6,
         # Điểm dừng
         epsilon: Optional[float] = 0.001,
         # Số vòng lặp tối đa
         n_loop: Optional[int] = 50,
-        is_plot: Optional[bool] = False,
+        max_size_cluster: int = 6,
     ) -> None:
         self.dataset = dataset
         self.fields_weight = fields_weight
         self.n_clusters = n_clusters
+        self.max_size_cluster = max_size_cluster
         self.fuzzi_M = fuzzi_M
-        self.alpha = alpha
         self.epsilon = epsilon
         self.membership = [[0] * self.n_clusters for i in range(len(dataset))]
-        self.fuzzi_set = [[fuzzi_M] * self.n_clusters for i in range(len(dataset))]
         self.centroid = []
         self.n_loop = n_loop
         self.is_stop = False
         self.pred_labels = [[] for _ in range(self.n_clusters)]
-        self.is_plot = is_plot
         self.loss_values = []
 
     def clustering(self):
         self.__generate_centroid()
         th_loop = 1
-        while th_loop <= self.n_loop:
+        while th_loop <= self.n_loop and not self.is_stop:
             self.is_stop = True
-            self.__update_membership(th_loop)
-            self.__update_centroid(th_loop)
+            self.__update_membership()
+            self.__update_centroid()
             self.__calculate_loss_function()
             th_loop += 1
         for idx, membership in enumerate(self.membership):
-            id_cluster = np.argmax(membership)
-            self.pred_labels[id_cluster].append(idx)
-        self.pred_labels = np.array(self.pred_labels, dtype=object)
-        
-        return self.pred_labels, self.centroid
+            sorted_membership = sorted(membership, key=float, reverse=True)
+            for data in sorted_membership:
+                id_cluster = membership.index(data)
+                if len(self.pred_labels[id_cluster]) < self.max_size_cluster:
+                    self.pred_labels[id_cluster].append(idx)
+                    break
+
+        return self.pred_labels, th_loop, self.epsilon, self.loss_values
 
     def __generate_centroid(self):
-        # computing random centroid for unsupervised clusters (apply kmean++)
-        for k in range(self.n_clusters - len(self.centroid)):
-            ## initialize a list to store distances of data
-            ## points from nearest centroid
-            dist = []
+        exclude_list = []
+        # Set 1st centroid random
+        first_centroid = random.randint(0, self.n_clusters - 1)
+        self.centroid.append(self.dataset[first_centroid])
+        exclude_list.append(first_centroid)
+
+        # computing centroid furthest from the last centroid (greedy)
+        for k in range(self.n_clusters - 1):
+            random_list = list(set([i for i in range(0, self.n_clusters - 1)]) - set(exclude_list))
+            next_centroid = random.choice(random_list)
             for i in range(len(self.dataset)):
+                if i in exclude_list:
+                    continue
+
                 point = self.dataset[i]
+                last_centroid = self.centroid[-1]
+
                 d = sys.maxsize
+                temp_dist = self.__calculate_point_distance(last_centroid, point)
+                if temp_dist < d:
+                    next_centroid = i
 
-                ## compute distance of 'point' from each of the previously
-                ## selected centroid and store the minimum distance
-                for j in range(len(self.centroid)):
-                    temp_dist = self.__calculate_point_distance(self.centroid[j], point)
-                    d = min(d, temp_dist)
-                dist.append(d)
-
-            ## select data point with maximum distance as our next centroid
-            dist = np.array(dist)
-            next_centroid = self.dataset[np.argmax(dist)]
-            self.centroid.append(next_centroid)
+            exclude_list.append(next_centroid)
+            self.centroid.append(self.dataset[next_centroid])
 
 
-    def __update_membership(self, th_loop):
+    def __update_membership(self):
 
         fuzzi_M_pow = 1 / (self.fuzzi_M - 1)
         Dij = [
@@ -102,25 +106,27 @@ class FCM :
             self.membership[id_point] = membership
 
 
-    def __update_centroid(self, th_loop):
+    def __update_centroid(self):
         th_centroid = []
         for id_centroid, centroid in enumerate(self.centroid):
             uik_pow = [
                 math.pow(
                     self.membership[id_point][id_centroid],
-                    self.fuzzi_set[id_point][id_centroid],
+                    self.fuzzi_M,
                 )
                 for id_point in range(len(self.dataset))
             ]
-            new_centroid = ClusterObject()
-            new_centroid.calculate_centroid_from_list_and_uik(uik_pow=uik_pow, data=self.dataset)
+            service = ClusterStudentService()
+            new_centroid = service.calculate_centroid_from_list_and_uik(uik_pow=uik_pow, data=self.dataset)
             th_centroid.append(new_centroid)
-            # if self.__calculate_point_distance(centroid, new_centroid) > self.epsilon:
-            #     self.is_stop = False
+            if self.__calculate_point_distance(centroid, new_centroid) > self.epsilon:
+                self.is_stop = False
 
+        self.centroid = th_centroid
 
     def __calculate_point_distance(self, p1, p2):
-        distance = p1.get_distance_to_another_object(p2, self.fields_weight)
+        service = ClusterStudentService()
+        distance = service.get_distance_to_another_object(p1, p2, self.fields_weight)
         return distance if distance else self.epsilon
 
 
@@ -132,7 +138,7 @@ class FCM :
                         [
                             math.pow(
                                 self.membership[id_point][id_centroid],
-                                self.fuzzi_set[id_point][id_centroid],
+                                self.fuzzi_M,
                             )
                             * self.__calculate_point_distance(point, centroid)
                             for id_centroid, centroid in enumerate(self.centroid)
@@ -142,16 +148,3 @@ class FCM :
                 ]
             )
         )
-
-    def show_cluster_members(self):
-        print("Cluster members: ")
-        for cluster in self.pred_labels:
-            print(cluster)
-
-    def show_loss_function(self):
-        plt.plot(self.loss_values)
-        plt.title("Loss function")
-        plt.show()
-        print("loss functions: ")
-        print(self.loss_values)
-        

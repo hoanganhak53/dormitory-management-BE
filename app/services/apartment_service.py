@@ -10,7 +10,7 @@ from app.models.student_room import StudentRoomData
 from app.models.room_type import RoomTypeData
 from app.models.registration import RegistrationData
 from app.models.form import FormData
-from app.models.cluster_object import ClusterObject, ClusterObjectInput
+from app.models.cluster_object import ClusterObjectInput
 from app.services.clustering_service import FCM 
 from fastapi import HTTPException, status
 import math
@@ -186,23 +186,26 @@ class ApartmentService:
         dataset, questions_weight = await self.data_preprocessing(all_student_registered)
         dataset_obj = []
         for data in dataset:
-            dataset_obj.append(ClusterObject(**data))
+            dataset_obj.append(ClusterObjectInput(**data))
 
-        cluster = FCM (dataset_obj, questions_weight, round(len(dataset) / room_type.capacity), 2, 0.6, 0.001, 50, False)
-        cluster_element, centroid = cluster.clustering()
+        cluster = FCM (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), 2, 0.000001, 50, room_type.capacity)
+        cluster_element, n_loop, epsilon, loss = cluster.clustering()
         
         rs = []
         for i in range(len(cluster_element)):
             rs.append(cluster_element[i])
             print(cluster_element[i])
         
-        rs = await self.response_data_processing(rs, dataset, room_type.capacity, empty_rooms, centroid)
+        rs = await self.response_data_processing(rs, dataset, room_type.capacity, empty_rooms)
 
         return rs, {
             "room_num": len(cluster_element),
             "student_num": len(dataset),
-            "time": round(time.time() - start_time, 3) ,
-            "room_type_name": clusterStudent.room_type_name
+            "time": round(time.time() - start_time, 3),
+            "room_type_name": clusterStudent.room_type_name,
+            "loop": n_loop,
+            "epsilon": epsilon,
+            "loss": loss
         }
         
     async def save_cluster(self, rooms: List):
@@ -276,53 +279,32 @@ class ApartmentService:
         
         return dataset, questions_weight
     
-    async def response_data_processing(self, centroids: List, dataset: List, capacity: int, empty_rooms: List, centroid: List):
-        final_array = []
-        short_centroids = []
-        for sub_array in centroids:
-            if len(sub_array) == capacity:
-                final_array.append(sub_array)
-            elif len(sub_array) > capacity:
-                while len(sub_array) > capacity:
-                    final_array.append(sub_array[:capacity])
-                    sub_array = sub_array[capacity:]
-                if len(sub_array) == capacity:
-                    final_array.append(sub_array)
-                else:
-                    short_centroids.append(sub_array)
-            else:
-                short_centroids.append(sub_array)
-
-        sorted_array = sorted(short_centroids, key=len)
-        merged_array = [element for sub_array in sorted_array for element in sub_array]
-        final_array = final_array + [merged_array[i:i + capacity] for i in range(0, len(merged_array), capacity)]
-
+    async def response_data_processing(self, centroids: List, dataset: List, capacity: int, empty_rooms: List):
+        final_array = centroids
         empty_rooms = empty_rooms[:len(final_array)]
-        
-        form = await FormData.find_all().to_list()
         
         rs = []
         for i in range(0, len(final_array)):
             obj = empty_rooms[i].dict()
             students = []
-            centroid_students = centroid[i].answers
             for index in final_array[i]:
                 student = await UserData.find_one({'_id': PydanticObjectId(dataset[index]['user_id'])})
                 student = student.dict()
-                del student['answers']
                 students.append(student)
             
             description = []
-            for j in range(0, len(form)):
+            for key in students[0]["answers"].keys():
                 item = dict()
+                form = await FormData.find_one({'_id': PydanticObjectId(str(key))})
+                form = form.dict()
                 a = []
-                for k in range(0, len(centroid_students[j])):
-                    if centroid_students[j][k] != 0:
-                        a.append(form[j].answers[k])
+                for k in range(0, len(students[0]["answers"][key]["answer"])):
+                    a.append(form["answers"][k])
+                    
                 item['answers'] = a
-                item['question'] = form[j].question
+                item['question'] = form["question"]
                 description.append(item)
-            
+
             obj['students'] = students
             obj['description'] = description
             rs.append(obj)
