@@ -18,7 +18,7 @@ class FCM :
         # Hệ số M nên mặc định là 2
         fuzzi_M: Optional[int] = 2,
         # Điểm dừng
-        epsilon: Optional[float] = 0.001,
+        epsilon: Optional[float] = 0.000001,
         # Số vòng lặp tối đa
         n_loop: Optional[int] = 50,
         max_size_cluster: int = 6,

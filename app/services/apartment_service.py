@@ -188,7 +188,7 @@ class ApartmentService:
         for data in dataset:
             dataset_obj.append(ClusterObjectInput(**data))
 
-        cluster = FCM (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), 2, 0.000001, 50, room_type.capacity)
+        cluster = FCM (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), clusterStudent.fuzzy_m, clusterStudent.epsilon, clusterStudent.max_loop, room_type.capacity)
         cluster_element, n_loop, epsilon, loss = cluster.clustering()
         
         rs = []
@@ -205,7 +205,9 @@ class ApartmentService:
             "room_type_name": clusterStudent.room_type_name,
             "loop": n_loop,
             "epsilon": epsilon,
-            "loss": loss
+            "loss": loss,
+            "max_loop": clusterStudent.max_loop,
+            "fuzzy_m": clusterStudent.fuzzy_m
         }
         
     async def save_cluster(self, rooms: List):
@@ -298,13 +300,12 @@ class ApartmentService:
                 form = await FormData.find_one({'_id': PydanticObjectId(str(key))})
                 form = form.dict()
                 a = []
-                for k in range(0, len(students[0]["answers"][key]["answer"])):
+                for k in students[0]["answers"][key]["answer"]:
                     a.append(form["answers"][k])
                     
                 item['answers'] = a
                 item['question'] = form["question"]
                 description.append(item)
-
             obj['students'] = students
             obj['description'] = description
             rs.append(obj)

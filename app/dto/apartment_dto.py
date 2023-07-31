@@ -30,3 +30,6 @@ class RemoveStudentToRoom(BaseModel):
 class ClusterStudent(BaseModel):
     apartment_id: str
     room_type_name: str
+    fuzzy_m: int
+    max_loop: int
+    epsilon: float
