@@ -53,7 +53,6 @@ class ApartmentService:
         self,
         apartment_input: UpdateApartmentRequest
     ):
-        #thiếu cập nhật apartment thì phải cập nhật room
         apartment = await ApartmentData.find_one({'_id': PydanticObjectId(apartment_input.id)})
         if not apartment:
             raise HTTPException(

@@ -61,7 +61,8 @@ class StudentRoomService:
         student_room_list = StudentRoomData.find_many({
             'apartment_id': student_room_input.apartment_id,
             'registration_id': student_room_input.registration_id,
-            'room_type_id': student_room_input.room_type_id
+            'room_type_id': student_room_input.room_type_id,
+            'status': 1
         })
         
         #danh sach cac phong cung toa nha, cùng loai phong
@@ -82,7 +83,7 @@ class StudentRoomService:
             count_room_empty += 1
         
         #neu so sinh vien dang ky loai phong do da lon hon so phong trong thi đầy
-        if await student_room_list.count() >= room_type.capacity * count_room_empty:
+        if await student_room_list.count() >= room_type.capacity * await room_list.count():
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Loại phòng này đã bị đăng ký hết')
         

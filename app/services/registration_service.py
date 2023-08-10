@@ -29,6 +29,13 @@ class RegistrationService:
         registration_input: CreateRegistrationRequest
     ):
         registration_dict = registration_input.dict()
+        registration_all = RegistrationData.find_all()
+        registration_all_list = await registration_all.to_list()
+        for registration in registration_all_list:
+            if(registration.start_register <= registration_input.start_register <= registration.end_register) or (registration.start_register <= registration_input.end_register <= registration.end_register) or (registration_input.start_register <= registration.end_register <= registration_input.end_register and registration_input.start_register <= registration.start_register <= registration_input.end_register):
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Hiện có một đợt đăng ký đang mở')
+        
         model = RegistrationData(**registration_dict)
         await model.save()
         return model.dict()
@@ -37,7 +44,7 @@ class RegistrationService:
     async def put(
         self,
         registration_input: UpdateRegistrationRequest
-    ):  
+    ):
         registration = await RegistrationData.find_one({'_id': PydanticObjectId(registration_input.id)})
 
         await registration.update({"$set": {

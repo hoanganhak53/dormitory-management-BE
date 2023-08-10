@@ -142,8 +142,6 @@ class RoomService:
                     break
             else:
                 i += 1
-
-        #thuc hien don cac cap phong trong pair_array TO DO
         
         #sắp xếp các phòng còn lại giảm dần
         sorted_room = sorted(new_valid_rooms, key=lambda x: x["student_num"], reverse=True)

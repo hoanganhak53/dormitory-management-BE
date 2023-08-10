@@ -63,11 +63,14 @@ async def reset_password(input_pass: ForgotPasswordRequest):
 
 @route.get("/gen")
 async def gen_ktx():
-    for i in range(0, 30):
+    start = 2022111
+    for i in range(0, 50):
+        name = random_vietnamese_name()
+        mssv = start + i
         user_dict = {
-            "email": f"example{i}@gmail.com",
-            "full_name": f"Nguyen Van A {i}",
-            "mssv": f"2019011{i}",
+            "email": f"{generate_email(name, mssv)}",
+            "full_name": name,
+            "mssv": f"{mssv}",
             "password": "12345678",
             "user_type": 1,
             "is_valid": True,
@@ -75,7 +78,7 @@ async def gen_ktx():
             "major": "14",
             "gender": 1,
             "batch": "64",
-            "phonenumber": f"{i}12345{i}003",
+            "phonenumber": random_phone_number(),
             "birth": "2001-01-01"
         }
         model = UserData(**user_dict)
@@ -84,3 +87,41 @@ async def gen_ktx():
     return {
         "message": "Thanh cong"
     }
+    
+def random_vietnamese_name():
+    first_names = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương", "Lý", "Đào", "Đoàn", "Vương", "Trương", "Phan", "Tạ", "Phùng", "Quách", "Đinh", "Lâm", "Quang", "Hà", "Kiều", "Mai", "Trịnh", "Lương", "Ninh", "Quỳnh", "Tiến", "Hùng", "Nam", "Khánh", "Quyết", "Cường", "Thắng", "Bảo", "Tâm", "Thiên", "Thành", "Thiện", "Tuấn", "Việt", "Xuân"]
+    middle_names = ["Văn", "Hữu", "Minh", "Ngọc", "Hoàng", "Thành", "Tuấn", "Quốc", "Thiện", "Như", "Công", "Đức", "Trí", "Đình", "Nhân", "Phương", "Thắng", "Vinh", "Nhật"]
+    last_names = ["Hoàng", "Vũ", "Lê", "Sơn", "Hoàng", "Hoàng Anh", "Long", "Kiên", "Bắc", "Hùng", "Trường", "Mạnh", "Dũng", "Kiên", "Đào", "Đoàn", "Vương", "Trương", "Phan", "Tuấn Anh", "Độ", "Quách", "Đinh", "Lâm", "Quang", "Hà", "Thắng", "Hiếu", "Trịnh", "Lương", "Ninh", "Nam", "Khánh", "Quyết", "Cường", "Thắng", "Bảo", "Tâm", "Thiên", "Thành", "Thiện", "Tuấn", "Việt", "Xuân"]
+
+    first_name = random.choice(first_names)
+    middle_name = random.choice(middle_names)
+    last_name = random.choice(last_names)
+
+    return f"{first_name} {middle_name} {last_name}"
+
+def random_phone_number():
+    area_code = ["03", "05", "07", "08", "09"]
+    main_digits = [str(random.randint(0, 9)) for _ in range(7)]
+
+    area_code = random.choice(area_code)
+    main_digits = "".join(main_digits)
+
+    return f"{area_code}{main_digits}"
+
+def generate_email(full_name, student_id):
+    # Tách tên thành các phần riêng biệt
+    name_parts = full_name.strip().split()
+    if len(name_parts) == 2:
+        first_name, last_name = name_parts
+    else:
+        first_name = name_parts[0]
+        last_name = name_parts[-1]
+
+    # Chuyển đổi các phần tên thành lowercase và loại bỏ các dấu cách
+    first_name = first_name.lower()
+    last_name = last_name.lower()
+    student_id = str(student_id)
+
+    # Tạo email
+    email = f"{last_name}.{first_name}{student_id}@gmail.com"
+    return email

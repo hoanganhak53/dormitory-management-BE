@@ -57,12 +57,12 @@ class FCM :
 
     def __generate_centroid(self):
         exclude_list = []
-        # Set 1st centroid random
+        # khởi tạo ngẫu nhiên tâm cụm
         first_centroid = random.randint(0, self.n_clusters - 1)
         self.centroid.append(self.dataset[first_centroid])
         exclude_list.append(first_centroid)
 
-        # computing centroid furthest from the last centroid (greedy)
+        # tính tâm cụm bằng tt tham lam
         for k in range(self.n_clusters - 1):
             random_list = list(set([i for i in range(0, self.n_clusters - 1)]) - set(exclude_list))
             next_centroid = random.choice(random_list)
@@ -93,10 +93,10 @@ class FCM :
             for point in self.dataset
         ]
 
-        # without supervision
         for id_point, point in enumerate(self.dataset):
             Dij_pow = []
             sum_Dij_pow = 0
+            # Tính uik cho từng điểm và cụm
             for id_centroid, centroid in enumerate(self.centroid):
                 Dik_pow = math.pow(Dij[id_point][id_centroid], fuzzi_M_pow)
                 Dij_pow.append(Dik_pow)
