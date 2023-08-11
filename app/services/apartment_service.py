@@ -12,6 +12,8 @@ from app.models.registration import RegistrationData
 from app.models.form import FormData
 from app.models.cluster_object import ClusterObjectInput
 from app.services.clustering_service import FCM 
+from app.services.k_means import KMEANS
+
 from fastapi import HTTPException, status
 import math
 import time
@@ -187,7 +189,11 @@ class ApartmentService:
         for data in dataset:
             dataset_obj.append(ClusterObjectInput(**data))
 
-        cluster = FCM (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), clusterStudent.fuzzy_m, clusterStudent.epsilon, clusterStudent.max_loop, room_type.capacity)
+        if(clusterStudent.algorithm == 1):
+            cluster = FCM (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), clusterStudent.fuzzy_m, clusterStudent.epsilon, clusterStudent.max_loop, room_type.capacity)
+        else:
+            cluster = KMEANS (dataset_obj, questions_weight, math.ceil(len(dataset) / room_type.capacity), clusterStudent.epsilon, clusterStudent.max_loop, room_type.capacity)
+        
         cluster_element, n_loop, epsilon, loss = cluster.clustering()
         
         rs = []

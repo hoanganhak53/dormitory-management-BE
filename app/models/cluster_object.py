@@ -48,6 +48,18 @@ class ClusterStudentService():
             answers=new_answers
         )
         return new_centroid
+    
+    def calculate_centroid_k_means(cls, data: list[ClusterObjectInput]):
+        new_answers = []
+        for i in range(0, len(data[0].answers)):
+            list_ = [item.answers[i] for item in data]
+            new_answers.append(cls.add_and_divide_arrays(list_))
+
+        new_centroid = ClusterObjectInput(
+            user_id="",
+            answers=new_answers
+        )
+        return new_centroid
 
     def multiply_array_elements(cls, array: list, factor: float):
         result = []

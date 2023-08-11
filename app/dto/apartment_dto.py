@@ -33,3 +33,4 @@ class ClusterStudent(BaseModel):
     fuzzy_m: float
     max_loop: int
     epsilon: float
+    algorithm: int
